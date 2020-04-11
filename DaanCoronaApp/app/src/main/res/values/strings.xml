@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DaanCorona</string>
+    <string name="MAP_API_KEY" translatable="false">AIzaSyCiyc_4v8hbbwX86H6Cy9020JNY6dzQJGE</string>
 </resources>
