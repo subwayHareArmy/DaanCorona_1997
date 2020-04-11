@@ -9,6 +9,10 @@ This is the repository for backend code of DaanCorona
     
     Add the following lines in ~/.aws/config
     
+    sudo mkdir ~/aws
+    
+    sudo nano ~/.aws/config
+    
   
 [default]
 

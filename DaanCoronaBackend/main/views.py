@@ -29,13 +29,13 @@ class PhoneVerifyView(views.APIView):
 			flag = device.sendotp()
 
 			if settings.SMS_DEBUG:
-				return Response({'otp':flag}, status=status.HTTP_201_CREATED)
+				return Response({"otp":flag}, status=status.HTTP_201_CREATED)
 
 			if flag:	
 				return Response(status=status.HTTP_201_CREATED)
 
 		except Exception as e:
-			return Response({'exception':e}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({"exception":e}, status=status.HTTP_400_BAD_REQUEST)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -61,7 +61,7 @@ class OTPVerifyView(views.APIView):
 				token = get_tokens_for_user(user)
 				device.delete()
 
-				return Response({'token': token,'newUser':newUser}, status=status.HTTP_201_CREATED)
+				return Response({"token": token,"newUser":newUser}, status=status.HTTP_201_CREATED)
 		except ObjectDoesNotExist:
 			return Response(status=status.HTTP_400_BAD_REQUEST)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -91,6 +91,7 @@ class RecipientProfileView(views.APIView):
 					"business_address": recipient.business_address,
 					"lat": recipient.latitude,
 					"long": recipient.longitude,
+					"max_credit": recipient.max_credit
 				}
 
 		return Response(data, status=status.HTTP_200_OK)
@@ -108,6 +109,7 @@ class RecipientProfileView(views.APIView):
 			business_address = data.get("business_address")
 			latitude = data.get("lat")
 			longitude = data.get("long")
+			max_credit = int(data.get("max_credit"))
 
 			user = request.user
 			user.first_name = first_name
@@ -123,13 +125,14 @@ class RecipientProfileView(views.APIView):
 					business_address=business_address,
 					business_type=business_type,
 					latitude=latitude,
-					longitude=longitude
+					longitude=longitude,
+					max_credit=max_credit
 				)
 			new_recipient.save()
 			
 			return Response(status=status.HTTP_201_CREATED)
 		except Exception as e:
-			return Response({'exception':e}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({"exception":e}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RecipientDetailView(views.APIView):
@@ -141,12 +144,15 @@ class RecipientDetailView(views.APIView):
 		user = request.user
 		recipient = Recipient.objects.get(user=user)
 
+		total_amt = 0
 		donation_list = Donation.objects.all().filter(recipient=recipient)
-		donors = [None]
+		donors = []
 		for donation in donation_list:
-			donors.append(donation.donor)
+			donor = donation.donor
+			total_amt += donation.amount
+			donors.append({"donor_id":donor.pk,"name":donor.user.get_full_name(), "amount":donation.amount})
 
-		return Response({'recipient':recipient, 'donors':donors}, status=status.HTTP_200_OK)
+		return Response({"name":user.get_full_name(),"max_credit":recipient.max_credit,"total_amt":total_amt,"donors":donors}, status=status.HTTP_200_OK)
 
 
 class SendThanksView(views.APIView):
@@ -156,7 +162,7 @@ class SendThanksView(views.APIView):
 		donor_id = data.get("donor_id")
 
 		try:
-			donor = Donor.objects.get(id = donor_id)
+			donor = Donor.objects.get(pk = donor_id)
 		except ObjectDoesNotExist:
 			return Response(status=status.HTTP_400_BAD_REQUEST)
 

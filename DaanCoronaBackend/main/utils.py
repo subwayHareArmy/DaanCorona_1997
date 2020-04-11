@@ -3,9 +3,9 @@ from django.conf import settings
 import smtplib
 
 #SNS Connection
-# import boto3
-# snsclient = boto3.client('sns')
-# snsclient.set_sms_attributes(attributes={'DefaultSMSType':'Transactional'})
+import boto3
+snsclient = boto3.client('sns')
+snsclient.set_sms_attributes(attributes={'DefaultSMSType':'Transactional'})
 
 
 def get_tokens_for_user(user):
@@ -45,44 +45,8 @@ def send_thanks_email_to_donor(donor_name, donor_email):
 
 
 def send_otp_util(number,otp):
-    # response=snsclient.publish(PhoneNumber=number,Message='The otp is '+otp)
-    # if(response['ResponseMetadata']['HTTPStatusCode']==200):
-    #     return True
+    response=snsclient.publish(PhoneNumber=number,Message='Your otp for DaanCorona is '+otp)
+    if(response['ResponseMetadata']['HTTPStatusCode']==200):
+        return True
     
     return False
-    # message = settings.OTP_TWILIO_TOKEN_TEMPLATE.format(token=token)
-
-    # if settings.OTP_TWILIO_ACCOUNT is None:
-    #     raise ImproperlyConfigured('OTP_TWILIO_ACCOUNT must be set to your Twilio account identifier')
-    # if settings.OTP_TWILIO_AUTH is None:
-    #     raise ImproperlyConfigured('OTP_TWILIO_AUTH must be set to your Twilio auth token')
-    # if settings.OTP_TWILIO_FROM is None:
-    #     raise ImproperlyConfigured('OTP_TWILIO_FROM must be set to one of your Twilio phone numbers')
-
-    # url = 'https://api.twilio.com/2010-04-01/Accounts/{0}/Messages.json'.format(settings.OTP_TWILIO_ACCOUNT)
-    # data = {
-    #     'From': settings.OTP_TWILIO_FROM,
-    #     'To': self.number,
-    #     'Body': str(token),
-    # }
-
-    # response = requests.post(
-    #     url, data=data,
-    #     auth=(settings.OTP_TWILIO_ACCOUNT, settings.OTP_TWILIO_AUTH)
-    # )
-
-    # try:
-    #     response.raise_for_status()
-    # except Exception as e:
-    #     logger.exception('Error sending token by Twilio SMS: {0}'.format(e))
-    #     raise
-
-    # if 'sid' not in response.json():
-    #     message = response.json().get('message')
-    #     logger.error('Error sending token by Twilio SMS: {0}'.format(message))
-    #     raise Exception(message)
-
-    # challenge = settings.OTP_TWILIO_CHALLENGE_MESSAGE.format(token=token)
-    # return challenge
-
-        

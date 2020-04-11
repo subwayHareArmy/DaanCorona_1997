@@ -28,7 +28,7 @@ class Donor(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='donor')
 
     def __str__(self):
-        return self.user
+        return self.user.get_full_name()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -43,9 +43,10 @@ class Recipient(models.Model):
     business_address = models.TextField(verbose_name="Business Address", max_length=1000)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    max_credit = models.IntegerField(default=0)
     
     def str(self):
-        return self.user
+        return self.user.get_full_name()
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -73,7 +74,7 @@ class Donation(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.amount
+        return '' + str(self.donor.user.get_full_name()) + '-' + str(self.recipient.user.get_full_name())
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
